@@ -1,0 +1,21 @@
+<!--components/results-table/results-table.component.html-->
+<!-- TODO Implement the required code No fixed requirement to utilize any of the following HTML --> 
+<!-- feel free to be creative -->
+<table class="results">
+  <thead>
+<!-- TODO Implement the required code -->
+  </thead>
+
+  <tbody>
+<!-- TODO Implement the required code -->
+  </tbody>
+</table>
+
+<!-- Simple pagination controls (existing logic still applies) -->
+<div class="pager" aria-label="Pagination">
+  <button type="button" (click)="goTo(pageIndex - 1)" [disabled]="pageIndex <= 0">Prev</button>
+  <span>Page {{ pageIndex + 1 }} / {{ totalPages(total, pageSize) }}</span>
+  <button type="button" (click)="goTo(pageIndex + 1)" [disabled]="pageIndex >= totalPages(total, pageSize) - 1">
+    Next
+  </button>
+</div>
