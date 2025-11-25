@@ -112,6 +112,7 @@ const DATA = seedData();
 // --- Helpers for API ---
 const allowedSortFields = new Set([
   'partNumber',
+  'supplierSku',
   'description',
   'branch',
   'availableQty',
@@ -236,6 +237,7 @@ app.get(`${API_BASE}/inventory/search`, async (req, res) => {
   // Shape response items to match contract (do not expose supplierSku)
   const shaped = rows.map(r => ({
     partNumber: r.partNumber,
+	supplierSku: r.supplierSku,
     description: r.description,
     branch: r.branch,
     availableQty: r.availableQty,

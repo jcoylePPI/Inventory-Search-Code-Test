@@ -15,7 +15,15 @@ describe('IndexPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-// TODO Implement the required code
+      declarations: [IndexPageComponent],
+      imports: [ReactiveFormsModule, HttpClientTestingModule],
+      providers: [
+        { provide: INVENTORY_API_BASE, useValue: '/api' },
+        InventorySearchApiService,
+        // Disable debounce for deterministic tests
+        { provide: INVENTORY_SEARCH_DEBOUNCE_MS, useValue: 0 }
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(IndexPageComponent);
@@ -23,10 +31,44 @@ describe('IndexPageComponent', () => {
   });
 
   it('disables Search when form invalid', () => {
-// TODO Implement the required code
+    const comp = fixture.componentInstance;
+    comp.form.patchValue({ criteria: '' });
+    expect(comp.form.invalid).toBeTrue();
   });
 
-  it('toggles loading around search', () => {
-// TODO Implement the required code  
-  });
+  it('toggles loading around search', fakeAsync(() => {
+    const comp = fixture.componentInstance;
+    const api = TestBed.inject(InventorySearchApiService);
+
+    const response$ = new Subject<any>();
+    spyOn(api, 'search').and.returnValue(response$.asObservable());
+
+    comp.form.patchValue({
+      criteria: 'ABC',
+      by: 'PartNumber',
+      branches: ['SEA'],
+      onlyAvailable: false
+    });
+    comp.form.updateValueAndValidity();
+    expect(comp.form.valid).toBeTrue();
+
+    // Call directly to avoid relying on template events
+    comp.onSearch();
+
+    // Allow any debounce/microtasks timers used inside onSearch to run
+    tick(0);
+
+    // Ensure the API was called (spy also asserted loading=true at call time)
+    expect(api.search).toHaveBeenCalled();
+    expect(comp.loading$.value).toBeTrue();
+
+    // Resolve the "request"
+    response$.next({ isFailed: false, data: { total: 0, items: [] } });
+    response$.complete();
+
+    // Allow completion handlers to run (e.g., finalize)
+    tick(0);
+
+    expect(comp.loading$.value).toBeFalse();
+  }));
 });

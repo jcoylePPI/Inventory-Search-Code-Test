@@ -31,6 +31,7 @@ export interface InventoryItemLot {
 
 export interface InventoryItem {
   partNumber: string;
+  supplierSku: string;
   description: string;
   branch: string;
   availableQty: number;

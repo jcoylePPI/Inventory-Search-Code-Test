@@ -7,7 +7,6 @@ import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, filter, map, shareReplay, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {InventoryItem, InventorySearchQuery, SearchBy,} from '../../models/inventory-search.models';
 import {InventorySearchApiService} from '../../services/inventory-search-api.service';
-import {ToastService} from '../../services/toast.service';
 import { InjectionToken, Inject, OnInit, Optional } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 
@@ -25,30 +24,53 @@ export const INVENTORY_SEARCH_DEBOUNCE_MS = new InjectionToken<number>('INVENTOR
   standalone: false
 })
 export class IndexPageComponent implements OnDestroy, OnInit {
-// TODO Implement the required code
+  /**
+   * Challenge hint (replace this block with your state fields):
+   * - Define reactive controllers for: search trigger, sort state, and current page.
+   * - Expose public observables for: total count and items list derived from responses.
+   * - Track loading as a boolean BehaviorSubject toggled around requests.
+   * - Keep a simple string errorMessage to show failures inline.
+   * - Keep a configurable debounce value (overridable via DI) for throttling user actions.
+   * - Create a form group with fields for criteria, by, branches, and onlyAvailable.
+   */
+  // (Implement fields here)
 
-  // Loading state: true when a request is in-flight; false when completed
-  loading$ = new BehaviorSubject<boolean>(false);
-
-// TODO Implement the required code
 
   constructor(
-// TODO Implement the required code
+    private readonly fb: FormBuilder,
+    private readonly api: InventorySearchApiService,
+    @Inject(INVENTORY_SEARCH_DEBOUNCE_MS) @Optional() debounceMs: number | null
   ) {
-// TODO Implement the required code
+    if (typeof debounceMs === 'number') {
+      this._debounce = debounceMs;
+    }
+    this.form = this.fb.group({
+      criteria: ['', Validators.required],
+      by: ['PartNumber' as SearchBy, Validators.required],
+      branches: [[] as string[]],
+      onlyAvailable: [false],
+    });
   }
 
-  ngOnInit(): void {
-// TODO Implement the required code
+  /**
+   * Code challenge – high-level goal:
+   * - Compose a reactive search pipeline driven by three inputs: manual search trigger, sort changes, and page changes.
+   * - Debounce and transform those inputs into a typed query object, then execute the request while canceling stale ones.
+   * - Expose loading, total count, and items as observables suitable for OnPush + async pipe.
+   * - Handle failures with a simple inline message; keep all UI state separate from API concerns.
+   * - Ensure proper cleanup of subscriptions and efficient re-use of the latest emissions.
+   */
 
+  ngOnInit(): void {
+// implement the code
   }
 
   ngOnDestroy(): void {
-// TODO Implement the required code
+    // implement the cleanup
   }
 
   onSearch() {
-	  // TODO Implement the required code
+ // implement the search
   }
 
   onEnterKey() {
@@ -57,19 +79,21 @@ export class IndexPageComponent implements OnDestroy, OnInit {
   }
 
   onSort(field: keyof InventoryItem) {
-	  // TODO Implement the required code
+  // implement the sort functionality
   }
 
   onPageChange(pageIndex: number) {
-    this.page$.next(pageIndex);
+// implement the required code
   }
   // Handle branches input changes from template
   onBranchesChange(event: Event) {
-// TODO Implement the required code
+// implement the code
   }
 
+  // Build the query
   private buildQuery(): InventorySearchQuery {
-// TODO Implement the required code
+// implement the code
   }
-// TODO Implement the required code
+
+  protected readonly String = String;
 }
