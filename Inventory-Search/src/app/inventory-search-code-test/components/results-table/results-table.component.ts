@@ -70,17 +70,39 @@ export class ResultsTableComponent {
 
   // Fetch peak availability for a given item/part
   fetchPeakAvailability(item: InventoryItem) {
-    // Needs to call the API to get the peak availability for the part
-    // on an error
-    // Failed to load peak availability along with any error returned by the API
+    const key = item.partNumber;
+    if (this.peakLoading[key]) return;
+    this.peakLoading[key] = true;
+    this.errorMessage = null;
 
+    this.api.getPeakAvailability(item.partNumber)
+      .pipe(finalize(() => { this.peakLoading[key] = false; }))
+      .subscribe({
+        next: res => {
+          if (res.isFailed || !res.data) {
+            this.errorMessage = `Failed to load peak availability${res.message ? ': ' + res.message : ''}`;
+            this.peakByPart[key] = null;
+            return;
+          }
+          this.peakByPart[key] = res.data;
+        },
+        error: err => {
+          this.errorMessage = 'Failed to load peak availability';
+          this.peakByPart[key] = null;
+        }
+      });
   }
 
   // Convenience: fetch and expand inline panel
   onPeakButton(item: InventoryItem) {
 
-    // Expand the row if not expanded
-
+    const key = this.rowKey(item);
+    if (!this.peakByPart[item.partNumber]) {
+      this.fetchPeakAvailability(item);
+    }
+    if (!this.expanded[key]) {
+      this.expanded[key] = true;
+    }
   }
 
   totalPages(total: number, size: number) {
@@ -88,6 +110,20 @@ export class ResultsTableComponent {
   }
 
   goTo(page: number) {
-    // go to specific page
+    const maxPage = this.totalPages(this.total, this.pageSize) - 1;
+    this.pageIndex = Math.min(Math.max(0, page), maxPage);
+    this.pageChange.emit(this.pageIndex);
+  }
+
+  // Unique key for each row based on part number and branch
+  rowKey(item: InventoryItem) {
+    return `${item.partNumber}_${item.branch}`;
+  }
+
+  // Type guard for sortable headers
+  isSortableHeader(
+    h: { field: InventoryItemSortableFields; sortable?: boolean } | { field: keyof InventoryItem; sortable?: boolean }
+  ): h is { field: InventoryItemSortableFields; sortable?: boolean } {
+    return !!h.sortable && typeof h.field === 'string';
   }
 }
