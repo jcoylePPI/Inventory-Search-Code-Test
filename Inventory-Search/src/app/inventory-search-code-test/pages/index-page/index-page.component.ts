@@ -201,9 +201,6 @@ export class IndexPageComponent implements OnDestroy, OnInit {
       if (this.branchContainer?.nativeElement.contains(target)) {
         return;
       }
-      if (this.el.nativeElement.contains(target)) {
-        return;
-      }
     }
     this.branchListOpen = false;
   }

@@ -19,7 +19,7 @@ export class ResultsTableComponent {
   @Input() total = 0;
   @Input() pageSize = 20;
 
-  @Output() sort = new EventEmitter<keyof InventoryItem>();
+  @Output() sort = new EventEmitter<InventoryItemSortableFields>();
   @Output() pageChange = new EventEmitter<number>();
 
   pageIndex = 0;
