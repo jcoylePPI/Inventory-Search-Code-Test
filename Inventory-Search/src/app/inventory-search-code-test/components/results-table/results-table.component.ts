@@ -2,8 +2,9 @@
 
 // TypeScript
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
-import {InventoryItem, PeakAvailability} from '../../models/inventory-search.models';
+import {InventoryItem, InventoryItemSortableFields, PeakAvailability} from '../../models/inventory-search.models';
 import { InventorySearchApiService } from '../../services/inventory-search-api.service';
+import { finalize } from 'rxjs/operators';
 
 
 @Component({
@@ -28,28 +29,42 @@ export class ResultsTableComponent {
   peakByPart: Record<string, PeakAvailability | null> = {};
   // Simple inline error message
   errorMessage: string | null = null;
+  currentSort: { field: InventoryItemSortableFields; direction: 'asc' | 'desc' } | null = null;
 
-  headers: Array<{ label: string; field: keyof InventoryItem }> = [
-    { label: 'Part Number', field: 'partNumber' },
-    { label: 'Supplier SKU', field: 'supplierSku' },
-    { label: 'Description', field: 'description' },
-    { label: 'Branch', field: 'branch' },
-    { label: 'Available', field: 'availableQty' },
-    { label: 'UOM', field: 'uom' },
-    { label: 'Lead Time (days)', field: 'leadTimeDays' },
-    { label: 'Last Purchase', field: 'lastPurchaseDate' },
+
+  headers: Array<{ label: string; field: InventoryItemSortableFields; sortable?: boolean } | { label: string; field: keyof InventoryItem; sortable?: boolean }> = [
+    { label: 'Part Number', field: 'partNumber', sortable: true},
+    { label: 'Supplier SKU', field: 'supplierSku', sortable: false },
+    { label: 'Description', field: 'description', sortable: true },
+    { label: 'Branch', field: 'branch', sortable: true },
+    { label: 'Available', field: 'availableQty', sortable: true },
+    { label: 'UOM', field: 'uom', sortable: true },
+    { label: 'Lead Time (days)', field: 'leadTimeDays', sortable: true },
+    { label: 'Last Purchase', field: 'lastPurchaseDate', sortable: true },
   ];
 
   constructor(
     private readonly api: InventorySearchApiService,
   ) {}
 
-  onHeaderClick(field: keyof InventoryItem) {
-    // The data to be sorted on the column
+  onHeaderClick(field: InventoryItemSortableFields) {
+    // Toggle sort direction or set new sort field
+    if (this.currentSort?.field === field) {
+      this.currentSort = {
+        field,
+        direction: this.currentSort.direction === 'asc' ? 'desc' : 'asc'
+      };
+    } else {
+      this.currentSort = { field, direction: 'asc' };
+    }
+    this.pageIndex = 0;
+    this.sort.emit(field);
   }
 
   toggleExpand(item: InventoryItem) {
-    // Toggle the expanded state of a row
+    // Toggle expanded state for the given item
+    const key = this.rowKey(item);
+    this.expanded[key] = !this.expanded[key];
   }
 
 
