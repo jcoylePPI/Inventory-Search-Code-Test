@@ -97,7 +97,7 @@ export class IndexPageComponent implements OnDestroy, OnInit {
       this.sortState$,
       this.page$
     ).pipe(
-      debounceTime(this._debounce),
+      this._debounce > 0 ? debounceTime(this._debounce) : tap(() => {}),
       //build the query from latest form/sort/page state
       map(() => this.buildQuery()),
       filter((q): q is InventorySearchQuery => !!q),
@@ -149,8 +149,13 @@ export class IndexPageComponent implements OnDestroy, OnInit {
       this.errorMessage = 'Enter search criteria to begin.';
       return;
     }
+    // Immediately show loading before the reactive pipeline processes the trigger
+    this.errorMessage = null;
+    this.loading$.next(true);
     this.currentPage = 0;
-    this.page$.next(0);
+    if (this.page$.value !== 0) {
+      this.page$.next(0);
+    }
     this.searchTrigger$.next();
   }
 

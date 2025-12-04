@@ -80,8 +80,8 @@ export class InventorySearchApiService {
           this.cache = this.cache.filter(e => e.key !== key);
         }
       }),
-      //sharereplay for mutlicast + caching
-      shareReplay({ bufferSize: 1, refCount: true })
+      // keep last value without refCount reset to allow cache reuse after completion
+      shareReplay({ bufferSize: 1, refCount: false })
     );
 
     // remember in cache
@@ -120,8 +120,8 @@ export class InventorySearchApiService {
           this.peakCache = this.peakCache.filter(e => e.key !== key);
         }
       }),
-      //sharereplay for mutlicast + caching
-      shareReplay({ bufferSize: 1, refCount: true })
+      // keep last value without refCount reset to allow cache reuse after completion
+      shareReplay({ bufferSize: 1, refCount: false })
     );
 
     // remember in cache
